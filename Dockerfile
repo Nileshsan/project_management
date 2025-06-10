@@ -31,6 +31,7 @@ COPY --from=vendor /app/vendor /var/www/vendor
 
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
+RUN mkdir -p /etc/nginx/conf.d && cp /etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Set permissions for Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
