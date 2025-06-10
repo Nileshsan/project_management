@@ -32,16 +32,16 @@ WORKDIR /var/www
 # Copy application code
 COPY . /var/www
 
+# Ensure required directories exist and are writable before composer install
+RUN mkdir -p /var/www/storage/logs /var/www/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /etc/nginx/conf.d && cp /etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf
-
-# Set permissions for Laravel
-RUN mkdir -p /var/www/storage/logs \
-    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose port 8080 for Render
 EXPOSE 8080
