@@ -41,14 +41,25 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
+# Copy composer files first
+COPY composer.json composer.lock ./
+
+# Install composer dependencies
+RUN composer install --no-dev --no-scripts --no-autoloader
+
 # Copy existing application directory
 COPY . .
 
-# Copy deployment script
-COPY deploy.sh /var/www/deploy.sh
-RUN chmod +x /var/www/deploy.sh
+# Generate optimized autoload files
+RUN composer dump-autoload --no-dev --optimize
+
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www
+RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
 # Run deployment script
+COPY deploy.sh /var/www/deploy.sh
+RUN chmod +x /var/www/deploy.sh
 RUN ./deploy.sh
 
 # Set permissions
