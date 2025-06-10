@@ -117,5 +117,10 @@ fi
 
 echo "✅ Laravel initialization complete!"
 
+# Configure Nginx with correct port
+echo "🛠️ Configuring Nginx..."
+sed -i "s/\${PORT}/$PORT/g" /etc/nginx/conf.d/default.conf
+nginx -t
+
 # Start supervisor (which manages nginx, php-fpm, and workers)
 exec "$@"
