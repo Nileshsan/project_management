@@ -3,15 +3,14 @@ set -e
 
 echo "🚀 Starting Laravel initialization..."
 
-# Create .env file if it doesn't exist
-if [ ! -f /var/www/.env ]; then
-    echo "📝 Creating .env file..."
-    cp /var/www/nileshenv /var/www/.env
-    
-    # Replace environment variables in .env
-    if [ -n "$APP_KEY" ]; then
-        sed -i "s#APP_KEY=.*#APP_KEY=$APP_KEY#g" /var/www/.env
-    fi
+# Create .env file
+echo "📝 Creating .env file..."
+cp /var/www/nileshenv /var/www/.env || echo "Failed to copy nileshenv to .env"
+
+# Replace environment variables in .env
+if [ -n "$APP_KEY" ]; then
+    sed -i "s#APP_KEY=.*#APP_KEY=$APP_KEY#g" /var/www/.env
+fi
     if [ -n "$APP_URL" ]; then
         sed -i "s#APP_URL=.*#APP_URL=$APP_URL#g" /var/www/.env
     fi
@@ -52,11 +51,18 @@ echo "🧹 Optimizing application..."
 php artisan optimize:clear
 php artisan optimize
 
+# Generate application key if not set
+if [ -z "$APP_KEY" ]; then
+    echo "🔑 Generating application key..."
+    php artisan key:generate --force
+fi
+
 # Create storage link
 echo "🔗 Creating storage link..."
+if [ -L /var/www/public/storage ]; then
+    rm /var/www/public/storage
+fi
 php artisan storage:link --force
-
-# Handle key generation
 if [ -z "$APP_KEY" ]; then
     echo "🔑 Generating application key..."
     cd /var/www && php artisan key:generate --force

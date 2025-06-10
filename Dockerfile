@@ -55,6 +55,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . /var/www/
 
+# Ensure nileshenv exists and is copied
+COPY nileshenv /var/www/nileshenv
+
 # Copy configuration files
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
