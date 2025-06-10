@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     libxslt1-dev \
     zip \
     unzip \
-    supervisor \
+    python3-supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
     && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd xsl
 
