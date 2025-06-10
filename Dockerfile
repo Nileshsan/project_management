@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libxslt1-dev \
+    libpq-dev \
     zip \
     unzip \
     supervisor \
