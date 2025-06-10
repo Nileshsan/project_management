@@ -42,9 +42,19 @@ if [ -L /var/www/public/storage ]; then
     rm /var/www/public/storage
 fi
 
+# Install composer dependencies
+echo "📦 Installing dependencies..."
+cd /var/www
+composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+# Clear and cache routes, config
+echo "🧹 Optimizing application..."
+php artisan optimize:clear
+php artisan optimize
+
 # Create storage link
 echo "🔗 Creating storage link..."
-cd /var/www && php artisan storage:link --force
+php artisan storage:link --force
 
 # Handle key generation
 if [ -z "$APP_KEY" ]; then

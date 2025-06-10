@@ -64,8 +64,11 @@ COPY deploy.sh /var/www/deploy.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY healthcheck.sh /healthcheck.sh
 
-# Set the correct permissions
-RUN chmod +x /docker-entrypoint.sh \
+# Create required directories and set permissions
+RUN mkdir -p /var/www/bootstrap/cache \
+    && mkdir -p /var/www/storage/framework/{sessions,views,cache} \
+    && mkdir -p /var/www/storage/app/public \
+    && chmod +x /docker-entrypoint.sh \
     && chmod +x /healthcheck.sh \
     && chmod +x /var/www/deploy.sh \
     && chown -R www-data:www-data /var/www \
