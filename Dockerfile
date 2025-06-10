@@ -1,10 +1,4 @@
-# Stage 1: Build Composer dependencies
-FROM composer:2.6 AS vendor
-WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
-
-# Stage 2: PHP-FPM and Nginx
+# Stage 1: PHP-FPM and Nginx
 FROM php:8.2-fpm
 
 # Install system dependencies and PHP extensions
@@ -15,10 +9,14 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libxslt-dev \
     zip \
     unzip \
     supervisor \
-    && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd xsl
+
+# Install Composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www
@@ -26,8 +24,8 @@ WORKDIR /var/www
 # Copy application code
 COPY . /var/www
 
-# Copy Composer dependencies from build stage
-COPY --from=vendor /app/vendor /var/www/vendor
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
