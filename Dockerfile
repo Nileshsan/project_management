@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     zlib1g-dev \
-    libpng-dev
+    libpng-dev \
+    gettext
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
