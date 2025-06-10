@@ -16,10 +16,10 @@ RUN apt-get update && apt-get install -y \
     libxslt1-dev \
     zip \
     unzip \
-    python3-supervisor \
-    libcurl4-openssl-dev \
+    python3-pip \
+    && pip3 install supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
-    && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd xsl curl
+    && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd xsl
 
 # Install Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
