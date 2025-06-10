@@ -37,6 +37,18 @@ froiden-verify/
 resources/views/sections/custom_script.blade.php
 demo_db_copy.sql
 database/maxmind/
+/public/user-uploads
+/storage/app
+/storage/framework
+/storage/logs
+/storage/debugbar
+/storage/fonts
+/storage/csv
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/testing
+/storage/framework/views
+/storage/framework/cache/data
 
 # Keep these files for Render deployment
 !Dockerfile
