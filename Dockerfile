@@ -94,5 +94,13 @@ EXPOSE 80
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 CMD healthcheck
 
-# Start Supervisor, Nginx & PHP-FPM
+# Create storage link during container startup
+RUN ln -sf /var/www/storage/app/public /var/www/public/storage
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Start everything
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["sh", "-c", "supervisord -n & nginx && php-fpm"]

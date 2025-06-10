@@ -3,7 +3,10 @@ services:
     name: project_management
     env: docker
     buildCommand: docker build -t project_management .
-    startCommand: docker run -p $PORT:80 project_management
+    startCommand: docker run -p $PORT:80 -e PORT=$PORT project_management
+    healthCheckPath: /login
+    healthCheckTimeout: 100
+    autoDeploy: true
     envVars:
       - key: APP_NAME
         value: Worksuite
