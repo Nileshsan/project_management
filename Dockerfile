@@ -101,6 +101,9 @@ RUN ln -sf /var/www/storage/app/public /var/www/public/storage
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Create supervisor log directory
+RUN mkdir -p /var/log/supervisor
+
 # Start everything
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "supervisord -n & nginx && php-fpm"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisor.conf"]

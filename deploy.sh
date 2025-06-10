@@ -6,6 +6,12 @@ mkdir -p storage/framework/cache
 mkdir -p storage/framework/sessions
 mkdir -p storage/framework/views
 mkdir -p storage/app/public
+mkdir -p storage/logs
+mkdir -p storage/debugbar
+
+# Ensure storage and public directories exist
+mkdir -p public/storage
+mkdir -p storage/app/public/user-uploads
 
 # Set permissions before installation
 chmod -R 775 storage bootstrap/cache
