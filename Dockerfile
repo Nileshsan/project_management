@@ -51,6 +51,41 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy project files
+WORKDIR /var/www
+COPY . /var/www/
+
+# Copy configuration files
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY supervisor.conf /etc/supervisor/conf.d/supervisord.conf
+COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+COPY nileshenv /var/www/nileshenv
+COPY deploy.sh /var/www/deploy.sh
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY healthcheck.sh /healthcheck.sh
+
+# Set the correct permissions
+RUN chmod +x /docker-entrypoint.sh \
+    && chmod +x /healthcheck.sh \
+    && chmod +x /var/www/deploy.sh \
+    && chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Create required directories
+RUN mkdir -p /var/log/supervisor \
+    && mkdir -p /var/log/nginx \
+    && mkdir -p /var/www/storage/framework/{sessions,views,cache} \
+    && mkdir -p /var/www/storage/app/public
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD /healthcheck.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # Set working directory
 WORKDIR /var/www
 

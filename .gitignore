@@ -8,6 +8,7 @@
 /vendor
 .env
 .env.backup
+.env.dev
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -36,3 +37,8 @@ froiden-verify/
 resources/views/sections/custom_script.blade.php
 demo_db_copy.sql
 database/maxmind/
+
+# Keep these files for Render deployment
+!Dockerfile
+!nginx.conf
+!render.yaml

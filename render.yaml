@@ -3,10 +3,13 @@ services:
     name: project_management
     env: docker
     buildCommand: docker build -t project_management .
-    startCommand: docker run -p $PORT:80 -e PORT=$PORT project_management
+    startCommand: docker run -p $PORT:80 -e PORT=$PORT -e APP_KEY -e APP_URL -e DB_HOST -e DB_DATABASE -e DB_USERNAME -e DB_PASSWORD -e MAIL_HOST -e MAIL_USERNAME -e MAIL_PASSWORD -e MAIL_FROM_ADDRESS project_management
     healthCheckPath: /login
     healthCheckTimeout: 100
     autoDeploy: true
+    envVars:
+      - key: APP_KEY
+        generateValue: true # This will generate a random 32-character key
     envVars:
       - key: APP_NAME
         value: Worksuite
