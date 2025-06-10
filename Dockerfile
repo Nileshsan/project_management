@@ -54,21 +54,38 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
+# Create necessary directories first
+RUN mkdir -p /var/www/bootstrap/cache /var/www/storage
+RUN chmod -R 775 /var/www/bootstrap/cache /var/www/storage
+
 # Copy composer files first
 COPY composer.json composer.lock ./
 
+# Set environment for composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_NO_INTERACTION=1
+
 # Install composer dependencies
-RUN composer install --no-dev --no-scripts --no-autoloader
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
 # Copy existing application directory
 COPY . .
 
-# Generate optimized autoload files
-RUN composer dump-autoload --no-dev --optimize
-
-# Set proper permissions
+# Set proper permissions for Laravel
 RUN chown -R www-data:www-data /var/www
-RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Generate optimized autoload files
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative
+
+# Clear and cache Laravel configuration
+RUN php artisan config:clear \
+    && php artisan cache:clear \
+    && php artisan view:clear \
+    && php artisan route:clear \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
 # Run deployment script
 COPY deploy.sh /var/www/deploy.sh

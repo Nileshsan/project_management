@@ -8,10 +8,18 @@ mkdir -p storage/framework/views
 mkdir -p storage/app/public
 mkdir -p storage/logs
 mkdir -p storage/debugbar
-
-# Ensure storage and public directories exist
 mkdir -p public/storage
 mkdir -p storage/app/public/user-uploads
+
+# Set proper permissions
+chmod -R 775 bootstrap/cache
+chmod -R 775 storage
+chown -R www-data:www-data storage bootstrap/cache
+
+# Create storage link if it doesn't exist
+if [ ! -L "public/storage" ]; then
+    php artisan storage:link
+fi
 
 # Set permissions before installation
 chmod -R 775 storage bootstrap/cache
