@@ -54,19 +54,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Create necessary directories first
-RUN mkdir -p /var/www/bootstrap/cache /var/www/storage
-RUN chmod -R 775 /var/www/bootstrap/cache /var/www/storage
-
-# Copy composer files first
-COPY composer.json composer.lock ./
-
-# Set environment for composer
+# Set environment variables
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV COMPOSER_NO_INTERACTION=1
+ENV NODE_ENV=production
 
-# Install composer dependencies
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+# Create necessary directories and set permissions
+RUN mkdir -p /var/www/bootstrap/cache \
+    /var/www/storage/framework/cache \
+    /var/www/storage/framework/views \
+    /var/www/storage/framework/sessions \
+    /var/www/storage/app/public \
+    && chmod -R 775 /var/www/bootstrap/cache /var/www/storage
+
+# Copy dependency files first
+COPY composer.json composer.lock package.json package-lock.json ./
+
+# Install composer dependencies optimized
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --optimize-autoloader
 
 # Copy existing application directory
 COPY . .
