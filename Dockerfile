@@ -15,11 +15,13 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libxslt1-dev \
     libpq-dev \
+    libzip-dev \
+    libicu-dev \
     zip \
     unzip \
     supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-xpm \
-    && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd xsl
+    && docker-php-ext-install pdo_pgsql pgsql pdo_mysql mbstring exif pcntl bcmath gd xsl intl zip
 
 # Install Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
@@ -38,10 +40,15 @@ COPY nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /etc/nginx/conf.d && cp /etc/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Set permissions for Laravel
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN mkdir -p /var/www/storage/logs \
+    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Expose port 8080 for Render
 EXPOSE 8080
+
+# Optional: Add a healthcheck for Render
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8080/ || exit 1
 
 # Start Nginx and PHP-FPM via Supervisor
 COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
