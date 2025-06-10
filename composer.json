@@ -79,7 +79,8 @@
         "yajra/laravel-datatables-buttons": "^10.0",
         "yajra/laravel-datatables-html": "^10.8",
         "yajra/laravel-datatables-oracle": "^10.8",
-        "ivanomatteo/laravel-device-tracking": "dev-master as 1.0.1"
+        "ivanomatteo/laravel-device-tracking": "dev-master as 1.0.1",
+        "ext-pdo_pgsql": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.5",
