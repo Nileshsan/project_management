@@ -57,3 +57,9 @@ chown -R www-data:www-data storage bootstrap/cache
 # Cache configuration and routes for better performance
 php artisan config:cache
 php artisan route:cache
+
+
+php artisan config:clear
+php artisan config:cache
+php artisan migrate --force
+php artisan queue:restart
