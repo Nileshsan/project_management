@@ -778,15 +778,24 @@ return new class extends Migration {
                 $table->bigIncrements('id');
                 $table->string('name');
                 $table->text('widget_code');
+                $table->longText('footer_script')->nullable(); // Add footer_script as a new nullable column
                 $table->timestamps();
             });
         }
 
-
+        // Add header_script if missing
         if (!Schema::hasColumn('front_widgets', 'header_script')) {
             Schema::table('front_widgets', function (Blueprint $table) {
-                $table->longtext('header_script')->nullable();
-                DB::statement('ALTER TABLE `front_widgets` CHANGE `widget_code` `footer_script` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;');
+                $table->longText('header_script')->nullable();
+            });
+        }
+
+        // Migrate data from widget_code to footer_script, then drop widget_code
+        if (Schema::hasColumn('front_widgets', 'widget_code') && Schema::hasColumn('front_widgets', 'footer_script')) {
+            // Use DB facade for update
+            \DB::statement('UPDATE front_widgets SET footer_script = widget_code WHERE widget_code IS NOT NULL');
+            Schema::table('front_widgets', function (Blueprint $table) {
+                $table->dropColumn('widget_code');
             });
         }
 
