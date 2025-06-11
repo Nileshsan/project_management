@@ -7,77 +7,127 @@ services:
     buildCommand: docker build -t project_management .
     startCommand: >
       docker run -p $PORT:80 
-      -e APP_KEY 
-      -e APP_URL 
-      -e DB_HOST 
-      -e DB_DATABASE 
-      -e DB_USERNAME 
-      -e DB_PASSWORD 
-      -e MAIL_HOST 
-      -e MAIL_USERNAME 
-      -e MAIL_PASSWORD 
-      -e MAIL_FROM_ADDRESS 
-      -e REDIS_HOST 
-      -e REDIS_PASSWORD 
-      -e CACHE_DRIVER=redis 
-      -e SESSION_DRIVER=redis 
-      -e QUEUE_CONNECTION=redis 
+      -e APP_KEY="${APP_KEY}"
+      -e APP_URL="${APP_URL}"
+      -e DB_HOST="${DB_HOST}"
+      -e DB_DATABASE="${DB_DATABASE}"
+      -e DB_USERNAME="${DB_USERNAME}"
+      -e DB_PASSWORD="${DB_PASSWORD}"
+      -e MAIL_HOST="${MAIL_HOST}"
+      -e MAIL_USERNAME="${MAIL_USERNAME}"
+      -e MAIL_PASSWORD="${MAIL_PASSWORD}"
+      -e MAIL_FROM_ADDRESS="${MAIL_FROM_ADDRESS}"
+      -e REDIS_HOST="${REDIS_HOST}"
+      -e REDIS_PASSWORD="${REDIS_PASSWORD}"
+      -e CACHE_DRIVER=redis
+      -e SESSION_DRIVER=redis
+      -e QUEUE_CONNECTION=redis
+      -e SENTRY_LARAVEL_DSN="${SENTRY_LARAVEL_DSN}"
+      -e SENTRY_ENVIRONMENT="${SENTRY_ENVIRONMENT}"
       project_management
     healthCheckPath: /login
     healthCheckTimeout: 180
     autoDeploy: true
-    envVars:
-      - key: APP_KEY
-        generateValue: true # This will generate a random 32-character key
-      - key: APP_ENV
-        value: production
+
+  - type: redis
+    name: project_management_redis
+    ipAllowList: []
+    plan: starter
+
+  - type: worker
+    name: project_management_queue
+    env: docker
+    region: singapore
+    buildCommand: docker build -t project_management_worker -f Dockerfile.worker .    startCommand: php artisan queue:work redis --tries=3 --queue=default,emails
+    autoDeploy: true
+
+databases:
+  - name: project_management_db
+    plan: starter
+
+envVarGroups:
+  - name: project_management
     envVars:
       - key: APP_NAME
-        value: Worksuite
+        value: "WORKSUITE-SAAS"
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
+      - key: APP_KEY
+        value: "base64:b6P3CAqH5oLpA1E91ZFr1c8HWqy85b+hH2M0hzZD4s8="
       - key: APP_URL
-        fromService:
-          name: project_management
-          type: web
-          property: host
-      - key: DB_CONNECTION
-        value: mysql
+        value: "https://project-management-axsv.onrender.com"
+      - key: APP_LOCALE
+        value: "en"
+      - key: SENTRY_ENVIRONMENT
+        value: "production"
+      - key: SENTRY_LARAVEL_DSN
+        value: "2642d4bba87c59c60ade09473dc7d9a1"
+      - key: REDIRECT_HTTPS
+        value: "true"      - key: DB_CONNECTION
+        value: pgsql
       - key: DB_HOST
-        value: HOST_URL # Replace with your actual database host
+        value: "dpg-d146gic9c44c739db3s0-a.oregon-postgres.render.com"
       - key: DB_PORT
-        value: "3306"
+        value: "5432"
       - key: DB_DATABASE
-        value: your_database_name
+        value: "worksuite_z49j"
       - key: DB_USERNAME
-        value: your_database_username
+        value: "worksuite_z49j_user"
       - key: DB_PASSWORD
-        sync: false # This will prompt you to enter the value in Render dashboard
-      - key: MAIL_MAILER
+        value: "AwIgIwkoKJXpr5itFKbQvIrTDQhJvhYZ"
+      - key: QUEUE_CONNECTION
+        value: "redis"
+      - key: QUEUE_WORKER_SLEEP
+        value: "3"
+      - key: QUEUE_WORKER_TIMEOUT
+        value: "60"
+      - key: QUEUE_WORKER_TRIES
+        value: "3"
+      - key: REDIS_HOST
+        fromService:
+          name: project_management_redis
+          type: redis
+          property: host
+      - key: REDIS_PASSWORD
+        fromService:
+          name: project_management_redis
+          type: redis
+          property: password
+      - key: CACHE_DRIVER
+        value: redis
+      - key: SESSION_DRIVER
+        value: redis      - key: QUEUE_CONNECTION
+        value: redis      - key: MAIL_MAILER
         value: smtp
       - key: MAIL_HOST
-        value: your_smtp_host
+        value: smtp.gmail.com
       - key: MAIL_PORT
         value: "587"
       - key: MAIL_USERNAME
-        sync: false
+        value: nileshsanyasi02@gmail.com
       - key: MAIL_PASSWORD
-        sync: false
+        value: Nilesh23@a
       - key: MAIL_ENCRYPTION
         value: tls
       - key: MAIL_FROM_ADDRESS
-        value: your_from_email
+        value: nileshsanyasi02@gmail.com
       - key: MAIL_FROM_NAME
-        value: "${APP_NAME}"
-      - key: STRIPE_KEY
-        sync: false
-      - key: STRIPE_SECRET
-        sync: false
-      - key: PAYSTACK_PUBLIC_KEY
-        sync: false
-      - key: PAYSTACK_SECRET_KEY
-        sync: false
-      - key: MOLLIE_KEY
-        sync: false
+        value: "WORKSUITE-SAAS"
+      - key: MAIL_EHLO_DOMAIN
+        value: "https://project-management-axsv.onrender.com/"
+      - key: MAIL_FROM_VERIFIED_EMAIL
+        value: "true"
+      - key: APP_NAME
+        value: "WORKSUITE-SAAS"
+      - key: APP_LOCALE
+        value: "en"
+      - key: LOG_CHANNEL
+        value: "daily"
+      - key: QUEUE_WORKER_SLEEP
+        value: "3"
+      - key: QUEUE_WORKER_TRIES
+        value: "3"
+      - key: QUEUE_WORKER_TIMEOUT
+        value: "60"
