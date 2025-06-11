@@ -92,8 +92,9 @@ return new class extends Migration {
             });
         }
 
-        DB::statement('ALTER TABLE companies MODIFY status ENUM("active", "inactive", "license_expired") DEFAULT "active"');
-
+        // REMOVED MySQL-specific ALTER TABLE ... MODIFY ... ENUM statement for PostgreSQL compatibility
+        // If you need to add a value to a PostgreSQL enum, use ALTER TYPE ... ADD VALUE ...
+        // For now, this will remain as a string or native enum as supported by Laravel on PostgreSQL
 
         if (Schema::hasTable('global_currencies')) {
             Schema::table('global_settings', function ($table) {

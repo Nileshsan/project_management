@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration {
 
@@ -11,23 +12,23 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // PostgreSQL compatible DELETE syntax
         DB::statement('
-            DELETE p1 FROM user_permissions p1
-            INNER JOIN user_permissions p2
+            DELETE FROM user_permissions p1
+            USING user_permissions p2
             WHERE
-                p1.id > p2.id AND
-                p1.permission_id = p2.permission_id AND
-                p1.user_id = p2.user_id;
+                p1.id > p2.id 
+                AND p1.permission_id = p2.permission_id 
+                AND p1.user_id = p2.user_id
         ');
 
-        // Step 2: Add unique constraint
+        // Add unique constraint with explicit name
         Schema::table('user_permissions', function (Blueprint $table) {
-            $table->unique(['permission_id', 'user_id']);
+            $table->unique(
+                ['permission_id', 'user_id'],
+                'user_permissions_permission_user_unique'
+            );
         });
-
-
-
-
     }
 
     /**
@@ -35,7 +36,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        //
+        Schema::table('user_permissions', function (Blueprint $table) {
+            $table->dropUnique('user_permissions_permission_user_unique');
+        });
     }
-
 };

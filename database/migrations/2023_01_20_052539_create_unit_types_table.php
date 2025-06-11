@@ -26,10 +26,10 @@ return new class extends Migration {
         if (!Schema::hasTable('unit_types')) {
             Schema::create('unit_types', function (Blueprint $table) {
                 $table->bigIncrements('id');
-                $table->integer('company_id')->unsigned()->nullable();
+                $table->unsignedBigInteger('company_id')->nullable(); // PostgreSQL-compatible
                 $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
                 $table->string('unit_type');
-                $table->boolean('default')->default(0);
+                $table->boolean('default')->default(false);
                 $table->timestamps();
             });
         }
@@ -49,11 +49,11 @@ return new class extends Migration {
         foreach ($tablesForUnitId as $table) {
             if (!Schema::hasColumn($table, 'unit_id')) {
                 Schema::table($table, function (Blueprint $table) {
-                    $table->bigInteger('unit_id')->unsigned()->nullable()->default(null);
+                    $table->unsignedBigInteger('unit_id')->nullable()->default(null); // PostgreSQL-compatible
                     $table->foreign('unit_id')
                         ->references('id')
                         ->on('unit_types')
-                        ->onDelete('SET NULL')
+                        ->onDelete('set null')
                         ->onUpdate('cascade');
                 });
             }

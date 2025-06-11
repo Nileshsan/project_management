@@ -1,12 +1,13 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -15,12 +16,27 @@ return new class extends Migration
     public function up()
     {
         Schema::table('invoices', function (Blueprint $table) {
+            // First try to drop the index if it exists
+            try {
+                DB::statement('DROP INDEX IF EXISTS payments_offline_method_id_foreign');
+            } catch (\Exception $e) {
+                // Index doesn't exist, continue
+            }
 
-            $table->enum('payment_status', [1, 0])->default(0)->after('custom_invoice_number');
-            $table->unsignedInteger('offline_method_id')->nullable()->index('payments_offline_method_id_foreign')->after('payment_status');
-            $table->foreign(['offline_method_id'])->references(['id'])->on('offline_payment_methods')->onUpdate('CASCADE')->onDelete('SET NULL');
-            $table->string('transaction_id')->nullable()->unique()->after('offline_method_id');
-            $table->string('gateway')->nullable()->after('transaction_id');
+            if (!Schema::hasColumn('invoices', 'offline_method_id')) {
+                $table->unsignedBigInteger('offline_method_id')->nullable();
+                
+                // Create index with a unique name
+                $table->foreign('offline_method_id', 'invoices_offline_method_id_foreign')
+                    ->references('id')
+                    ->on('offline_payment_methods')
+                    ->onDelete('set null')
+                    ->onUpdate('cascade');
+            }
+
+            if (!Schema::hasColumn('invoices', 'transaction_id')) {
+                $table->string('transaction_id')->nullable();
+            }
         });
     }
 
@@ -32,9 +48,11 @@ return new class extends Migration
     public function down()
     {
         Schema::table('invoices', function (Blueprint $table) {
+            // Drop foreign key constraint first
             $table->dropForeign(['offline_method_id']);
-            $table->dropColumn(['payment_status', 'offline_method_id', 'transaction_id', 'gateway']);
+            
+            // Then drop the columns
+            $table->dropColumn(['offline_method_id', 'transaction_id']);
         });
     }
-
 };

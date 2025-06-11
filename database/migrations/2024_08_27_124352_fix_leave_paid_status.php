@@ -8,14 +8,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Leave::join('leave_types', 'leave_types.id', 'leaves.leave_type_id')
-            ->update(['leaves.paid' => DB::raw('leave_types.paid')]);;
+        // PostgreSQL compatible UPDATE with JOIN syntax
+        DB::statement('
+            UPDATE leaves 
+            SET paid = lt.paid,
+                updated_at = NOW()
+            FROM leave_types lt
+            WHERE lt.id = leaves.leave_type_id
+        ');
     }
 
     /**
@@ -23,9 +28,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('leaves', function (Blueprint $table) {
-            //
-        });
+        // Reset paid status to default if needed
+        DB::statement('UPDATE leaves SET paid = false');
     }
-
 };

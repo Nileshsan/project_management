@@ -69,7 +69,7 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        // No schema changes, only permission logic. No MySQL-specific syntax to change. Already PostgreSQL compatible
     }
 
 };

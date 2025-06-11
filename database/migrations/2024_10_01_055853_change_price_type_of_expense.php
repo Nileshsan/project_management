@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        DB::statement('ALTER TABLE expenses MODIFY price DOUBLE');
+        // PostgreSQL compatible column type change
+        DB::statement('ALTER TABLE expenses ALTER COLUMN price TYPE double precision');
     }
 
     /**
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        // Revert back to original type if needed
+        DB::statement('ALTER TABLE expenses ALTER COLUMN price TYPE numeric(13,2)');
     }
-
 };

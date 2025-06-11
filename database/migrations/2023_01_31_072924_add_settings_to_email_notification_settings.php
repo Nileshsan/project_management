@@ -69,7 +69,7 @@ return new class extends Migration {
         }
 
         Schema::table('lead_follow_up', function (Blueprint $table) {
-            $table->string('status')->after('remind_type')->nullable();
+            $table->string('status')->nullable();
         });
 
 

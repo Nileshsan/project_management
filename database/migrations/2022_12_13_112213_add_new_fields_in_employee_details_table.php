@@ -17,21 +17,17 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('employee_details', function (Blueprint $table) {
-
-            $table->date('probation_end_date')->nullable()->after('reporting_to');
-            $table->date('notice_period_start_date')->nullable()->after('reporting_to');
-            $table->date('notice_period_end_date')->nullable()->after('reporting_to');
-            $table->string('marital_status')->nullable()->after('reporting_to');
-            $table->date('marriage_anniversary_date')->nullable()->after('reporting_to');
-            $table->string('employment_type')->nullable()->after('reporting_to');
-            $table->date('internship_end_date')->nullable()->after('reporting_to');
-            $table->date('contract_end_date')->nullable()->after('reporting_to');
-
+            $table->date('probation_end_date')->nullable();
+            $table->date('notice_period_start_date')->nullable();
+            $table->date('notice_period_end_date')->nullable();
+            $table->string('marital_status')->nullable();
+            $table->date('marriage_anniversary_date')->nullable();
+            $table->string('employment_type')->nullable();
+            $table->date('internship_end_date')->nullable();
+            $table->date('contract_end_date')->nullable();
         });
 
         $companies = Company::select('id')->get();
-
-
         foreach ($companies as $company) {
             $widget = [
                 [
@@ -45,7 +41,8 @@ return new class extends Migration {
                     'status' => 1,
                     'company_id' => $company->id,
                     'dashboard_type' => 'private-dashboard'
-                ], [
+                ],
+                [
                     'widget_name' => 'contract_date',
                     'status' => 1,
                     'company_id' => $company->id,
@@ -58,17 +55,11 @@ return new class extends Migration {
                     'dashboard_type' => 'private-dashboard'
                 ]
             ];
-
             DashboardWidget::insert($widget);
         }
 
-        // Remove duplicates from module_settings table
-        \Illuminate\Support\Facades\DB::statement('DELETE t1 FROM module_settings t1
-        INNER JOIN module_settings t2 WHERE
-        t1.id > t2.id
-        AND t1.type = t2.type
-        AND t1.module_name = t2.module_name
-        AND t1.company_id = t2.company_id;');
+        // Remove duplicates from module_settings table (PostgreSQL-compatible)
+        \Illuminate\Support\Facades\DB::statement('DELETE FROM module_settings t1 USING module_settings t2 WHERE t1.id > t2.id AND t1.type = t2.type AND t1.module_name = t2.module_name AND t1.company_id = t2.company_id;');
 
         Schema::table('attendance_settings', function (Blueprint $table) {
             $table->boolean('monthly_report')->default(0);
@@ -76,7 +67,7 @@ return new class extends Migration {
         });
 
         Schema::table('leaves', function (Blueprint $table) {
-            $table->string('unique_id')->nullable()->after('leave_type_id');
+            $table->string('unique_id')->nullable();
         });
     }
 

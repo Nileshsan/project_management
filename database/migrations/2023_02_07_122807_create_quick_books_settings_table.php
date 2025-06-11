@@ -18,7 +18,7 @@ return new class extends Migration
     {
         Schema::create('quick_books_settings', function (Blueprint $table) {
             $table->id();
-            $table->integer('company_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('company_id')->nullable(); // PostgreSQL-compatible
             $table->foreign('company_id')
                 ->references('id')
                 ->on('companies')
@@ -31,31 +31,31 @@ return new class extends Migration
             $table->string('access_token');
             $table->string('refresh_token');
             $table->string('realmid');
-            $table->enum('sync_type', ['one_way', 'two_way'])->default('one_way');
-            $table->enum('environment', ['Development', 'Production'])->default('Production');
+            $table->string('sync_type')->default('one_way'); // Use string instead of enum for PostgreSQL
+            $table->string('environment')->default('Production'); // Use string instead of enum for PostgreSQL
             $table->boolean('status');
             $table->timestamps();
         });
 
 
         Schema::table('invoices', function (Blueprint $table) {
-            $table->integer('quickbooks_invoice_id')->nullable();
+            $table->bigInteger('quickbooks_invoice_id')->nullable(); // PostgreSQL-compatible
         });
 
         Schema::table('payments', function (Blueprint $table) {
-            $table->integer('quickbooks_payment_id')->nullable();
+            $table->bigInteger('quickbooks_payment_id')->nullable(); // PostgreSQL-compatible
         });
 
         Schema::table('client_details', function (Blueprint $table) {
-            $table->integer('quickbooks_client_id')->nullable();
+            $table->bigInteger('quickbooks_client_id')->nullable(); // PostgreSQL-compatible
         });
 
         Schema::table('companies', function (Blueprint $table) {
-            $table->integer('datatable_row_limit')->default(10)->after('taskboard_length');
+            $table->integer('datatable_row_limit')->default(10); // removed ->after() for PostgreSQL
         });
 
         Schema::table('global_settings', function (Blueprint $table) {
-            $table->integer('datatable_row_limit')->default(10)->after('allowed_file_size');
+            $table->integer('datatable_row_limit')->default(10); // removed ->after() for PostgreSQL
         });
 
         $companies = Company::select('id')->get();

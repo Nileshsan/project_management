@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Task;
 
@@ -18,54 +19,15 @@ return new class extends Migration
             $table->dateTime('due_date')->nullable()->change();
         });
 
-
-        Task::whereNotNull('created_at')
-            ->whereRaw("TIME(start_date) = '00:00:00' AND TIME(due_date) = '00:00:00'")
-            ->update([
-                'start_date' => DB::raw("CONCAT(DATE(start_date), ' ', TIME(created_at))"),
-                'due_date' => DB::raw("CONCAT(DATE(due_date), ' ', TIME(created_at))"),
-            ]);
-
-
-
-//        $tasks = Task::whereNotNull('created_at')
-//            ->whereRaw("TIME(start_date) = '00:00:00' AND TIME(due_date) = '00:00:00'")
-//            ->get();
-//
-//        $tasks->each(function($row) {
-//            $startDate = Carbon::parse($row->start_date)->format('Y-m-d');
-//            $dueDate = Carbon::parse($row->due_date)->format('Y-m-d');
-//            $createdAtTime = Carbon::parse($row->created_at)->format('H:i:s');
-//
-//            $newStartDate = Carbon::parse("{$startDate} {$createdAtTime}");
-//            $newDueDate = Carbon::parse("{$dueDate} {$createdAtTime}");
-//
-//            // Perform bulk update in one query for each task
-//            $row->update([
-//                'start_date' => $newStartDate,
-//                'due_date' => $newDueDate,
-//            ]);
-//        });
-
-
-//        Task::whereNotNull('created_at')->get()->each(function($row) {
-//
-//            if (Carbon::parse($row->start_date)->format('H:i:s') === '00:00:00' && Carbon::parse($row->start_date)->format('H:i:s') === '00:00:00') {
-//
-//                $startDate = Carbon::parse($row->start_date)->format('Y-m-d');
-//                $dueDate = Carbon::parse($row->due_date)->format('Y-m-d');
-//
-//                $createdAtTime = Carbon::parse($row->created_at)->format('H:i:s');
-//
-//                $newStartDate = Carbon::parse("{$startDate} {$createdAtTime}");
-//                $newDueDate = Carbon::parse("{$dueDate} {$createdAtTime}");
-//
-//                Task::where('id', $row->id)->update([
-//                        'start_date' => $newStartDate,
-//                        'due_date' => $newDueDate,
-//                    ]);
-//            }
-//        });
+        // PostgreSQL compatible datetime functions
+        DB::statement("
+            UPDATE tasks 
+            SET start_date = start_date::date + created_at::time,
+                due_date = due_date::date + created_at::time
+            WHERE created_at IS NOT NULL 
+            AND start_date::time = '00:00:00'::time 
+            AND due_date::time = '00:00:00'::time
+        ");
     }
 
     /**
@@ -73,7 +35,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('your_table_name', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table) {
             $table->date('start_date')->nullable()->change();
             $table->date('due_date')->nullable()->change();
         });

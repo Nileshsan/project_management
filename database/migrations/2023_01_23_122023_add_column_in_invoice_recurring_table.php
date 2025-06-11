@@ -16,15 +16,15 @@ return new class extends Migration {
         if (!Schema::hasColumn('invoice_recurring', 'next_invoice_date')) {
             Schema::table('invoice_recurring', function (Blueprint $table) {
                 $table->boolean('immediate_invoice')->default(false);
-                $table->date('next_invoice_date')->nullable()->after('issue_date');
+                $table->date('next_invoice_date')->nullable();
             });
         }
 
         if (!Schema::hasColumn('expenses_recurring', 'issue_date')) {
             Schema::table('expenses_recurring', function (Blueprint $table) {
-                $table->date('issue_date')->after('billing_cycle');
-                $table->boolean('immediate_expense')->default(false)->after('purchase_from');
-                $table->date('next_expense_date')->nullable()->after('issue_date');
+                $table->date('issue_date');
+                $table->boolean('immediate_expense')->default(false);
+                $table->date('next_expense_date')->nullable();
             });
         }
 

@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-
     /**
      * Run the migrations.
      */
@@ -13,9 +13,9 @@ return new class extends Migration
         $tables = ['expenses', 'payments', 'invoices'];
 
         foreach ($tables as $table) {
-            DB::table($table)->update(['exchange_rate' => DB::raw('ROUND(1 / exchange_rate, 4)')]);
+            // PostgreSQL compatible type casting and rounding
+            DB::statement("UPDATE {$table} SET exchange_rate = ROUND((1.0 / NULLIF(exchange_rate, 0))::numeric, 4) WHERE exchange_rate IS NOT NULL");
         }
-
     }
 
     /**
@@ -23,7 +23,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
-    }
+        $tables = ['expenses', 'payments', 'invoices'];
 
+        foreach ($tables as $table) {
+            // Reverse the calculation with proper type casting
+            DB::statement("UPDATE {$table} SET exchange_rate = ROUND((1.0 / NULLIF(exchange_rate, 0))::numeric, 4) WHERE exchange_rate IS NOT NULL");
+        }
+    }
 };

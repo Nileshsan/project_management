@@ -23,9 +23,9 @@ return new class extends Migration {
                 $table->string('currency_code');
                 $table->double('exchange_rate')->nullable()->default(null);
                 $table->double('usd_price')->nullable()->default(null);
-                $table->enum('is_cryptocurrency', ['yes', 'no'])->default('no');
-                $table->enum('currency_position', ['front', 'behind'])->default('front');
-                $table->enum('status', ['enable', 'disable'])->default('enable');
+                $table->string('is_cryptocurrency')->default('no');
+                $table->string('currency_position')->default('front');
+                $table->string('status')->default('enable');
                 $table->timestamps();
                 $table->softDeletes();
             });
@@ -51,7 +51,7 @@ return new class extends Migration {
                 $table->string('date_picker_format')->nullable();
                 $table->decimal('latitude', 10, 8)->default('26.9124336');
                 $table->decimal('longitude', 11, 8)->default('75.78727090000007');
-                $table->enum('active_theme', ['default', 'custom'])->default('default');
+                $table->string('active_theme')->default('default');
                 $table->integer('last_updated_by')->unsigned()->nullable();
                 $table->foreign('last_updated_by')
                     ->references('id')
@@ -98,11 +98,11 @@ return new class extends Migration {
                 $table->string('stripe_monthly_plan_id', 255)->nullable();
                 $table->string('razorpay_annual_plan_id')->nullable()->default(null);
                 $table->string('razorpay_monthly_plan_id')->nullable()->default(null);
-                $table->enum('default', ['yes', 'no', 'trial'])->nullable()->default('no');
+                $table->string('default')->nullable()->default('no');
                 $table->string('paystack_monthly_plan_id')->nullable();
                 $table->string('paystack_annual_plan_id')->nullable();
                 $table->boolean('is_private');
-                $table->enum('storage_unit', ['gb', 'mb'])->default('mb');
+                $table->string('storage_unit')->default('mb');
                 $table->boolean('is_recommended')->default(0);
                 $table->boolean('is_free')->default(0);
                 $table->boolean('is_auto_renew')->default(0);
@@ -118,9 +118,7 @@ return new class extends Migration {
                     ->on('packages')
                     ->onDelete('set null')
                     ->onUpdate('cascade');
-                $table->enum('package_type', ['monthly', 'annual'])
-                    ->after('package_id')
-                    ->default('monthly');
+                $table->string('package_type')->default('monthly')->after('package_id');
                 $table->string('stripe_id')->nullable();
                 $table->string('card_brand')->nullable();
                 $table->string('card_last_four')->nullable();
@@ -135,7 +133,7 @@ return new class extends Migration {
         if (!Schema::hasTable('package_settings')) {
             Schema::create('package_settings', function (Blueprint $table) {
                 $table->id();
-                $table->enum('status', ['active', 'inactive'])->default('inactive');
+                $table->string('status')->default('inactive');
                 $table->integer('no_of_days')->nullable()->default(30);
                 $table->string('modules', 1000)->nullable()->default(null);
                 $table->text('trial_message')->nullable();
@@ -168,7 +166,7 @@ return new class extends Migration {
                 $table->unsignedDecimal('amount', 12, 2);
                 $table->date('pay_date');
                 $table->date('next_pay_date')->nullable();
-                $table->enum('status', ['paid', 'unpaid', 'pending'])->default('pending');
+                $table->string('status')->default('pending');
                 $table->timestamps();
             });
         }
@@ -205,9 +203,9 @@ return new class extends Migration {
                     ->onDelete('cascade')
                     ->onUpdate('cascade');
                 $table->string('file_name')->nullable();
-                $table->enum('status', ['verified', 'pending', 'rejected'])->default('pending');
+                $table->string('status')->default('pending');
                 $table->text('remark')->nullable();
-                $table->mediumText('description');
+                $table->text('description');
                 $table->timestamps();
             });
         }
@@ -362,8 +360,8 @@ return new class extends Migration {
                 $table->integer('billing_interval')->nullable()->default(null);
                 $table->dateTime('paid_on')->nullable()->default(null);
                 $table->dateTime('next_pay_date')->nullable()->default(null);
-                $table->enum('recurring', ['yes', 'no'])->nullable()->default('no');
-                $table->enum('status', ['paid', 'unpaid', 'pending'])->nullable()->default('pending');
+                $table->string('recurring')->nullable()->default('no');
+                $table->string('status')->nullable()->default('pending');
                 $table->string('plan_id')->nullable()->default(null);
                 $table->string('event_id')->nullable()->default(null);
                 $table->dateTime('end_on')->nullable()->default(null);
@@ -407,30 +405,30 @@ return new class extends Migration {
                 $table->string('webhook_key')->nullable()->default(null);
                 $table->string('paypal_client_id')->nullable()->default(null);
                 $table->string('paypal_secret')->nullable()->default(null);
-                $table->enum('paypal_status', ['active', 'inactive'])->default('inactive');
-                $table->enum('stripe_status', ['active', 'inactive'])->default('inactive');
+                $table->string('paypal_status')->default('inactive');
+                $table->string('stripe_status')->default('inactive');
                 $table->string('razorpay_key')->nullable()->default(null);
                 $table->string('razorpay_secret')->nullable()->default(null);
                 $table->string('razorpay_webhook_secret')->nullable()->default(null);
-                $table->enum('razorpay_status', ['active', 'deactive'])->default('deactive');
-                $table->enum('paypal_mode', ['sandbox', 'live']);
+                $table->string('razorpay_status')->default('deactive');
+                $table->string('paypal_mode');
                 $table->string('paystack_client_id')->nullable();
                 $table->string('paystack_secret')->nullable();
-                $table->enum('paystack_status', ['active', 'inactive'])->default('inactive')->nullable();
+                $table->string('paystack_status')->default('inactive')->nullable();
                 $table->string('paystack_merchant_email')->nullable();
                 $table->string('paystack_payment_url')->default('https://api.paystack.co')->nullable();
                 $table->string('mollie_api_key');
-                $table->enum('mollie_status', ['active', 'inactive'])->default('inactive');
+                $table->string('mollie_status')->default('inactive');
                 $table->string('authorize_api_login_id')->nullable();
                 $table->string('authorize_transaction_key')->nullable();
                 $table->string('authorize_signature_key')->nullable();
                 $table->string('authorize_environment')->nullable();
-                $table->enum('authorize_status', ['active', 'inactive'])->default('inactive');
+                $table->string('authorize_status')->default('inactive');
                 $table->string('payfast_key')->nullable();
                 $table->string('payfast_secret')->nullable();
-                $table->enum('payfast_status', ['active', 'inactive'])->default('inactive');
+                $table->string('payfast_status')->default('inactive');
                 $table->string('payfast_salt_passphrase')->nullable();
-                $table->enum('payfast_mode', ['sandbox', 'live'])->default('sandbox');
+                $table->string('payfast_mode')->default('sandbox');
                 $table->timestamps();
             });
         }
@@ -513,8 +511,8 @@ return new class extends Migration {
                     ->onUpdate('cascade');
                 $table->text('subject');
                 $table->longText('description');
-                $table->enum('status', ['open', 'pending', 'resolved', 'closed'])->default('open');
-                $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
+                $table->string('status')->default('open');
+                $table->string('priority')->default('medium');
                 $table->integer('agent_id')->unsigned()->nullable();
                 $table->foreign('agent_id')
                     ->references('id')
@@ -593,8 +591,8 @@ return new class extends Migration {
         if (!Schema::hasTable('front_details')) {
             Schema::create('front_details', function (Blueprint $table) {
                 $table->increments('id');
-                $table->enum('get_started_show', ['yes', 'no'])->default('yes');
-                $table->enum('sign_in_show', ['yes', 'no'])->default('yes');
+                $table->string('get_started_show')->default('yes');
+                $table->string('sign_in_show')->default('yes');
                 $table->text('address')->nullable()->default(null);
                 $table->string('phone', 20)->nullable()->default(null);
                 $table->string('email', 60)->nullable()->default(null);
@@ -656,7 +654,7 @@ return new class extends Migration {
                     ->onUpdate('cascade');
                 $table->string('title')->nullable()->default(null);
                 $table->string('description')->nullable()->default(null);
-                $table->enum('status', ['enable', 'disable'])->default('enable');
+                $table->string('status')->default('enable');
                 $table->timestamps();
             });
         }
@@ -674,7 +672,7 @@ return new class extends Migration {
                 $table->longText('description')->nullable()->default(null);
                 $table->string('image', 200)->nullable()->default(null);
                 $table->string('icon', 200)->nullable()->default(null);
-                $table->enum('type', ['image', 'icon', 'task', 'bills', 'team', 'apps'])->default('image');
+                $table->string('type')->default('image');
                 $table->unsignedBigInteger('front_feature_id')->nullable()->default(null);
                 $table->foreign('front_feature_id')
                     ->references('id')
@@ -696,8 +694,8 @@ return new class extends Migration {
                 $table->string('file_name')->nullable()->default(null);
                 $table->string('hash_name')->nullable()->default(null);
                 $table->string('external_link')->nullable()->default(null);
-                $table->enum('type', ['header', 'footer', 'both'])->nullable()->default('footer');
-                $table->enum('status', ['active', 'inactive'])->nullable()->default('active');
+                $table->string('type')->default('footer');
+                $table->string('status')->default('active');
                 $table->unsignedInteger('language_setting_id')->nullable();
                 $table->foreign('language_setting_id')
                     ->references('id')

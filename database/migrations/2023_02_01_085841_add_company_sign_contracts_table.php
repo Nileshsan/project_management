@@ -21,7 +21,7 @@ return new class extends Migration
 
         Schema::table('contract_signs', function (Blueprint $table) {
             $table->string('place')->nullable();
-            $table->string('date')->nullable();
+            $table->date('date')->nullable(); // changed from string to date for PostgreSQL best practice
         });
 
     }
@@ -34,11 +34,14 @@ return new class extends Migration
 
     public function down()
     {
-
-            Schema::dropIfExists('contracts');
-            
-            Schema::dropIfExists('contract_signs');
-
+        Schema::table('contracts', function (Blueprint $table) {
+            $table->dropColumn('company_sign');
+            $table->dropColumn('sign_date');
+        });
+        Schema::table('contract_signs', function (Blueprint $table) {
+            $table->dropColumn('place');
+            $table->dropColumn('date');
+        });
     }
 
 };

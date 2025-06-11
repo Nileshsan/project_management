@@ -24,7 +24,6 @@ return new class extends Migration {
             ->where('model', 'NOT LIKE', '%Models%')
             ->update(['model' => DB::raw("REPLACE(model, 'App\\\\', 'App\\\\Models\\\\')")]);
 
-
         Invoice::with('project')->whereNull('client_id')->get()->each(function ($invoice) {
             $invoice->client_id = $invoice->project->client_id;
             $invoice->saveQuietly();
@@ -43,8 +42,9 @@ return new class extends Migration {
         if (Schema::hasTable('events')) {
             if (!Schema::hasColumn('events', 'send_reminder')) {
                 Schema::table('events', function (Blueprint $table) {
-                    $table->enum('send_reminder', ['yes', 'no'])->default('no');
+                    $table->string('send_reminder')->default('no');
                 });
+                DB::statement("ALTER TABLE events ADD CONSTRAINT events_send_reminder_check CHECK (send_reminder IN ('yes', 'no'))");
             }
 
             if (!Schema::hasColumn('events', 'remind_time')) {
@@ -55,21 +55,22 @@ return new class extends Migration {
 
             if (!Schema::hasColumn('events', 'remind_type')) {
                 Schema::table('events', function (Blueprint $table) {
-                    $table->enum('remind_type', ['day', 'hour', 'minute'])->default('day');
+                    $table->string('remind_type')->default('day');
                 });
+                DB::statement("ALTER TABLE events ADD CONSTRAINT events_remind_type_check CHECK (remind_type IN ('day', 'hour', 'minute'))");
             }
 
             if (!Schema::hasColumn('events', 'added_by')) {
                 Schema::table('events', function (Blueprint $table) {
-                    $table->unsignedInteger('added_by')->nullable()->index('events_added_by_foreign');
-                    $table->foreign(['added_by'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('SET NULL');
+                    $table->integer('added_by')->nullable()->index('events_added_by_foreign');
+                    $table->foreign(['added_by'])->references(['id'])->on('users')->onUpdate('cascade')->onDelete('set null');
                 });
             }
 
             if (!Schema::hasColumn('events', 'last_updated_by')) {
                 Schema::table('events', function (Blueprint $table) {
-                    $table->unsignedInteger('last_updated_by')->nullable()->index('events_last_updated_by_foreign');
-                    $table->foreign(['last_updated_by'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('SET NULL');
+                    $table->integer('last_updated_by')->nullable()->index('events_last_updated_by_foreign');
+                    $table->foreign(['last_updated_by'])->references(['id'])->on('users')->onUpdate('cascade')->onDelete('set null');
                 });
             }
         }
@@ -83,28 +84,49 @@ return new class extends Migration {
 
             if (!Schema::hasColumn('tickets', 'country_id')) {
                 Schema::table('tickets', function (Blueprint $table) {
-                    $table->unsignedInteger('country_id')->nullable()->index('tickets_country_id_foreign');
-                    $table->foreign(['country_id'])->references(['id'])->on('countries')->onUpdate('CASCADE')->onDelete('CASCADE');
+                    $table->integer('country_id')->nullable()->index('tickets_country_id_foreign');
+                    $table->foreign(['country_id'])->references(['id'])->on('countries')->onUpdate('cascade')->onDelete('cascade');
                 });
             }
 
             if (!Schema::hasColumn('tickets', 'added_by')) {
                 Schema::table('tickets', function (Blueprint $table) {
-                    $table->unsignedInteger('added_by')->nullable()->index('tickets_added_by_foreign');
-                    $table->foreign(['added_by'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('SET NULL');
+                    $table->integer('added_by')->nullable()->index('tickets_added_by_foreign');
+                    $table->foreign(['added_by'])->references(['id'])->on('users')->onUpdate('cascade')->onDelete('set null');
                 });
             }
 
             if (!Schema::hasColumn('tickets', 'last_updated_by')) {
                 Schema::table('tickets', function (Blueprint $table) {
-                    $table->unsignedInteger('last_updated_by')->nullable()->index('tickets_last_updated_by_foreign');
-                    $table->foreign(['last_updated_by'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('SET NULL');
+                    $table->integer('last_updated_by')->nullable()->index('tickets_last_updated_by_foreign');
+                    $table->foreign(['last_updated_by'])->references(['id'])->on('users')->onUpdate('cascade')->onDelete('set null');
                 });
             }
         }
 
-        if (Schema::hasColumn('global_settings', 'google_recaptcha_status')) {
-            DB::statement("ALTER TABLE `global_settings` CHANGE `google_recaptcha_status` `google_recaptcha_status` ENUM('active','deactive') NOT NULL DEFAULT 'deactive';");
+        if (Schema::hasTable('global_settings')) {
+            if (Schema::hasColumn('global_settings', 'google_recaptcha_status')) {
+                // PostgreSQL compatible way to modify the column
+                Schema::table('global_settings', function (Blueprint $table) {
+                    // First create a new column
+                    $table->string('google_recaptcha_status_new')->default('deactive');
+                });
+
+                // Copy data
+                DB::statement("UPDATE global_settings SET google_recaptcha_status_new = COALESCE(google_recaptcha_status, 'deactive')");
+
+                // Drop old column
+                Schema::table('global_settings', function (Blueprint $table) {
+                    $table->dropColumn('google_recaptcha_status');
+                });
+
+                // Rename new column
+                DB::statement('ALTER TABLE global_settings RENAME COLUMN google_recaptcha_status_new TO google_recaptcha_status');
+
+                // Add check constraint
+                DB::statement("ALTER TABLE global_settings ADD CONSTRAINT google_recaptcha_status_check CHECK (google_recaptcha_status IN ('active', 'deactive'))");
+            }
+            // Update empty values
             GlobalSetting::where('google_recaptcha_status', '')->update(['google_recaptcha_status' => 'deactive']);
         }
 
@@ -113,20 +135,18 @@ return new class extends Migration {
         if (Schema::hasTable('contract_files')) {
             if (!Schema::hasColumn('contract_files', 'added_by')) {
                 Schema::table('contract_files', function (Blueprint $table) {
-                    $table->unsignedInteger('added_by')->nullable()->index('contract_files_added_by_foreign');
-                    $table->foreign(['added_by'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('SET NULL');
+                    $table->integer('added_by')->nullable()->index('contract_files_added_by_foreign');
+                    $table->foreign(['added_by'])->references(['id'])->on('users')->onUpdate('cascade')->onDelete('set null');
                 });
             }
 
             if (!Schema::hasColumn('contract_files', 'last_updated_by')) {
                 Schema::table('contract_files', function (Blueprint $table) {
-                    $table->unsignedInteger('last_updated_by')->nullable()->index('contract_files_last_updated_by_foreign');
-                    $table->foreign(['last_updated_by'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('SET NULL');
+                    $table->integer('last_updated_by')->nullable()->index('contract_files_last_updated_by_foreign');
+                    $table->foreign(['last_updated_by'])->references(['id'])->on('users')->onUpdate('cascade')->onDelete('set null');
                 });
             }
         }
-
-
     }
 
     /**
@@ -138,5 +158,4 @@ return new class extends Migration {
     {
         //
     }
-
 };

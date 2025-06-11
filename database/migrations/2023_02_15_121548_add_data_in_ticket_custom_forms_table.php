@@ -49,7 +49,7 @@ return new class extends Migration {
     public function down()
     {
         Schema::table('ticket_custom_forms', function (Blueprint $table) {
-            //
+            $table->text('data')->nullable(); // Use text for PostgreSQL compatibility
         });
     }
 

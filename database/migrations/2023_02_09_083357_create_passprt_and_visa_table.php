@@ -98,14 +98,14 @@ return new class extends Migration
 
         Schema::create('passport_details', function (Blueprint $table) {
             $table->id();
-            $table->integer('company_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('company_id')->nullable();
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
-            $table->integer('user_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedInteger('country_id')->nullable()->index('passport_details_country_id_foreign');
-            $table->foreign(['country_id'])->references(['id'])->on('countries')->onUpdate('CASCADE')->onDelete('CASCADE');
-            $table->integer('added_by')->unsigned()->nullable();
-            $table->foreign('added_by')->references('id')->on('users')->onDelete('SET NULL')->onUpdate('cascade');
+            $table->unsignedBigInteger('country_id')->nullable()->index('passport_details_country_id_foreign');
+            $table->foreign('country_id')->references('id')->on('countries')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('added_by')->nullable();
+            $table->foreign('added_by')->references('id')->on('users')->onDelete('set null')->onUpdate('cascade');
             $table->string('passport_number');
             $table->date('issue_date');
             $table->date('expiry_date');
@@ -115,14 +115,14 @@ return new class extends Migration
 
         Schema::create('visa_details', function (Blueprint $table) {
             $table->id();
-            $table->integer('company_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('company_id')->nullable();
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
-            $table->integer('user_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedInteger('country_id')->nullable()->index('visa_details_country_id_foreign');
-            $table->foreign(['country_id'])->references(['id'])->on('countries')->onUpdate('CASCADE')->onDelete('CASCADE');
-            $table->integer('added_by')->unsigned()->nullable();
-            $table->foreign('added_by')->references('id')->on('users')->onDelete('SET NULL')->onUpdate('cascade');
+            $table->unsignedBigInteger('country_id')->nullable()->index('visa_details_country_id_foreign');
+            $table->foreign('country_id')->references('id')->on('countries')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('added_by')->nullable();
+            $table->foreign('added_by')->references('id')->on('users')->onDelete('set null')->onUpdate('cascade');
             $table->string('visa_number');
             $table->date('issue_date');
             $table->date('expiry_date');

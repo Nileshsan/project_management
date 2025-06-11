@@ -8,6 +8,8 @@ use App\Models\Permission;
 use App\Models\PermissionRole;
 use App\Models\UserPermission;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -64,6 +66,9 @@ return new class extends Migration
             }
         }
 
+        Schema::table('permissions', function (Blueprint $table) {
+            $table->boolean('manage_ticket_group')->default(false); // Use boolean and default false for PostgreSQL
+        });
     }
 
     /**

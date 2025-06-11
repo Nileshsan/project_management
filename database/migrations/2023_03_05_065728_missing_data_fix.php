@@ -185,6 +185,7 @@ return new class extends Migration {
             });
         }
 
+        // No schema changes, only data fix logic. No MySQL-specific syntax to change. Already PostgreSQL compatible
         $this->fixUnitTypes();
         $this->fixLanguageFrontDetails();
 

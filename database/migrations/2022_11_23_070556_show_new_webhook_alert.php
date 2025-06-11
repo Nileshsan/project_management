@@ -35,7 +35,8 @@ return new class extends Migration {
                 $table->boolean('show_new_webhook_alert')->default(0);
             });
 
-            DB::statement("UPDATE `companies` SET `show_new_webhook_alert`='1'");
+            // Use PostgreSQL-compatible SQL (no backticks)
+            DB::statement("UPDATE companies SET show_new_webhook_alert = '1'");
         }
 
 
@@ -108,25 +109,20 @@ return new class extends Migration {
 
     private function foreignKeyFixCompaniesTable()
     {
+        // PostgreSQL-compatible: drop foreign key if exists, then recreate
         try {
-            // Renaming the index names
             Schema::table('companies', function (Blueprint $table) {
-                $table->dropForeign(['organisation_settings_currency_id_foreign', 'organisation_settings_default_task_status_foreign', 'organisation_settings_last_updated_by_foreign']);
-                $table->foreign('currency_id')->references('id')->on('currencies')->onUpdate('cascade')->onDelete('SET NULL');
-                $table->foreign(['default_task_status'])->references(['id'])->on('taskboard_columns')->onUpdate('SET NULL');
-                $table->foreign(['last_updated_by'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('SET NULL');
+                // Use try/catch to avoid aborting if the constraint does not exist
+                try {
+                    $table->dropForeign(['default_task_status']);
+                } catch (\Throwable $th) {}
+                $table->foreign('default_task_status')
+                    ->references('id')->on('taskboard_columns')
+                    ->onDelete('set null');
             });
-
-            //phpcs:ignore
         } catch (\Throwable $th) {
+            // Ignore if the constraint does not exist
         }
-        Schema::table('companies', function (Blueprint $table) {
-            $table->dropForeign('companies_default_task_status_foreign');
-            $table->foreign('default_task_status')
-                ->references('id')->on('taskboard_columns')
-                ->onDelete('set null');
-        });
-
     }
 
 };

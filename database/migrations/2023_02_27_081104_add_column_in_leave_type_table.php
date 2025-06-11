@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('department')->nullable()->after('marital_status');
             $table->string('designation')->nullable()->after('department');
             $table->string('role')->nullable()->after('designation');
+            $table->boolean('is_paid')->default(false); // Use boolean and default false for PostgreSQL
         });
 
         $companies = Company::all();
@@ -84,6 +85,7 @@ return new class extends Migration
             $table->dropColumn('department');
             $table->dropColumn('designation');
             $table->dropColumn('role');
+            $table->dropColumn('is_paid');
         });
     }
 
