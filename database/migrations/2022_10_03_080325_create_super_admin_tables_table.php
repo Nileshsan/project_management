@@ -845,13 +845,11 @@ return new class extends Migration {
 
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('approved')->default(1);
-
-            $table->integer('approved_by')->unsigned()->nullable();
-            $table->foreign('approved_by')->references('id')->on('users')->onDelete('SET NULL')->onUpdate('cascade');
+            $table->unsignedInteger('approved_by')->nullable();
+            $table->foreign('approved_by')->references('id')->on('users')->onDelete('set null')->onUpdate('cascade');
         });
 
         // REMOVE this MySQL-specific statement for PostgreSQL compatibility
-        // DB::statement("ALTER TABLE global_currencies CHANGE COLUMN currency_position currency_position ENUM('left', 'right', 'left_with_space', 'right_with_space') NOT NULL DEFAULT 'left'");
         // If you need to update allowed values for currency_position in PostgreSQL, use a raw ALTER TYPE statement or a new migration with doctrine/dbal, but do not use CHANGE COLUMN.
 
         Schema::table('global_currencies', function (Blueprint $table) {

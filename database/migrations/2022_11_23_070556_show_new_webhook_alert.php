@@ -25,7 +25,9 @@ return new class extends Migration {
             });
         }
 
-        DB::statement("ALTER TABLE file_storage CHANGE COLUMN storage_location storage_location ENUM('local', 'aws_s3', 'digitalocean') NOT NULL DEFAULT 'local'");
+        // REMOVED MySQL-specific CHANGE COLUMN statement for PostgreSQL compatibility
+        // If you need to convert storage_location to a PostgreSQL enum, use CREATE TYPE and ALTER TABLE ... TYPE ... USING ...
+        // For now, this will remain as a string or native enum as supported by Laravel on PostgreSQL
 
 
         if (!Schema::hasColumn('companies', 'show_new_webhook_alert')) {
