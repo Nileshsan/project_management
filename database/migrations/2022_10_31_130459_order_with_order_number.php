@@ -43,13 +43,17 @@ return new class extends Migration {
             }
         }
 
-        Schema::table('invoices', function (Blueprint $table) {
-            $table->bigInteger('invoice_number')->change();
-        });
-
-        Schema::table('estimates', function (Blueprint $table) {
-            $table->bigInteger('estimate_number')->change();
-        });
+        // Change invoice_number to bigint in PostgreSQL-compatible way
+        if (Schema::hasColumn('invoices', 'invoice_number')) {
+            // First, cast all invoice_number values to integers if possible
+            \DB::statement('UPDATE invoices SET invoice_number = NULL WHERE invoice_number !~ E"^\\d+$"');
+            \DB::statement('ALTER TABLE invoices ALTER COLUMN invoice_number TYPE bigint USING invoice_number::bigint');
+        }
+        // Change estimate_number to bigint in PostgreSQL-compatible way
+        if (Schema::hasColumn('estimates', 'estimate_number')) {
+            \DB::statement('UPDATE estimates SET estimate_number = NULL WHERE estimate_number !~ E"^\\d+$"');
+            \DB::statement('ALTER TABLE estimates ALTER COLUMN estimate_number TYPE bigint USING estimate_number::bigint');
+        }
     }
 
     /**
