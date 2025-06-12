@@ -131,7 +131,7 @@ return new class extends Migration {
                 $table->enum('google_recaptcha_v3_status', ['active', 'deactive'])->default('deactive');
                 $table->string('google_recaptcha_v3_site_key')->nullable();
                 $table->string('google_recaptcha_v3_secret_key')->nullable();
-                $table->boolean('app_debug')->default(false);
+                $table->boolean('app_debug')->default(true);
                 $table->boolean('rounded_theme')->default(1);
                 $table->boolean('hide_cron_message')->default(false);
                 $table->boolean('system_update')->default(true);

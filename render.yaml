@@ -51,9 +51,9 @@ envVarGroups:
       - key: APP_NAME
         value: "WORKSUITE-SAAS"
       - key: APP_ENV
-        value: production
+        value: local
       - key: APP_DEBUG
-        value: false
+        value: true
       - key: APP_KEY
         value: "base64:b6P3CAqH5oLpA1E91ZFr1c8HWqy85b+hH2M0hzZD4s8="
       - key: APP_URL

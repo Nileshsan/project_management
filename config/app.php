@@ -64,9 +64,10 @@ return [
     |
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'local'),
 
-    'currency_converter_key' => env('CURRENCY_CONVERTER_KEY'),
+    'locale' => 'en',
+    'currency_converter_key' => env('CURRENCY_CONVERTER_KEY', null),
 
     /*
     |--------------------------------------------------------------------------

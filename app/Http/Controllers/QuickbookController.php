@@ -25,14 +25,31 @@ class QuickbookController extends AccountBaseController
     public function __construct()
     {
         parent::__construct();
-        $this->quickBooksSetting = QuickBooksSetting::first();
+
+        if (!env('APP_INSTALLED', false)) {
+            return;
+        }
+
+        $this->quickBooksSetting = \App\Models\QuickBooksSetting::first();
+
+        if (!$this->quickBooksSetting) {
+            return;
+        }
+
         $this->quickBooksEnvironment = $this->quickBooksSetting->environment;
         $this->quickBooksAccessToken = $this->quickBooksSetting->access_token;
         $this->quickBooksRefreshToken = $this->quickBooksSetting->refresh_token;
         $this->quickBooksRealmId = $this->quickBooksSetting->realmid;
-        $this->quickBooksClientId = $this->quickBooksEnvironment == 'Development' ? $this->quickBooksSetting->sandbox_client_id : $this->quickBooksSetting->client_id;
-        $this->quickBooksClientSecret = $this->quickBooksEnvironment == 'Development' ? $this->quickBooksSetting->sandbox_client_secret : $this->quickBooksSetting->client_secret;
+
+        if ($this->quickBooksEnvironment == 'Development') {
+            $this->quickBooksClientId = $this->quickBooksSetting->sandbox_client_id;
+            $this->quickBooksClientSecret = $this->quickBooksSetting->sandbox_client_secret;
+        } else {
+            $this->quickBooksClientId = $this->quickBooksSetting->client_id;
+            $this->quickBooksClientSecret = $this->quickBooksSetting->client_secret;
+        }
     }
+
 
     public function getCredentials()
     {

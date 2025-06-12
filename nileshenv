@@ -1,8 +1,8 @@
 APP_NAME=Worksuite
 # Do not change APP_ENV to anything else. It will affect emailing from admin panel
-APP_ENV=codecanyon
-APP_DEBUG=false
-APP_KEY=base64:CHANGE_THIS_TO_A_RANDOM_32_CHAR_STRING
+APP_ENV=local
+APP_DEBUG=true
+APP_KEY=base64:OZigoINz8FTbLZcfTj+dhNgnGRgcrzha+En8mhgGQVY=
 APP_URL=http://localhost
 APP_API_DEBUG=false
 

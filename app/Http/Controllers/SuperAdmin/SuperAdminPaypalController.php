@@ -54,26 +54,23 @@ class SuperAdminPaypalController extends AccountBaseController
     {
         parent::__construct();
 
-        $credential = GlobalPaymentGatewayCredentials::first();
+        $this->paypalSettings = GlobalPaymentGatewayCredentials::first();
 
-        if ($credential->paypal_mode == 'sandbox') {
-
-            $paypalClientId = $credential->sandbox_paypal_client_id;
-            $PaypalSecret = $credential->sandbox_paypal_secret;
-
+        if (!$this->paypalSettings) {
+            // Set safe defaults or throw a friendly error
+            $this->paypalMode = 'sandbox'; // or null
+            $this->paypalClientId = null;
+            $this->paypalSecret = null;
         } else {
-            $paypalClientId = $credential->paypal_client_id;
-            $PaypalSecret = $credential->paypal_secret;
-
+            $this->paypalMode = $this->paypalSettings->paypal_mode;
+            $this->paypalClientId = $this->paypalSettings->paypal_client_id;
+            $this->paypalSecret = $this->paypalSettings->paypal_secret;
         }
 
-        /** setup PayPal api context **/
-        config(['paypal.settings.mode' => $credential->paypal_mode]);
-        $paypal_conf = Config::get('paypal');
-        $this->_api_context = new ApiContext(new OAuthTokenCredential($paypalClientId, $PaypalSecret));
-        $this->_api_context->setConfig($paypal_conf['settings']);
-        $this->pageTitle = 'modules.paymentSetting.paypal';
+        // You can also set a flag like:
+        $this->paypalConfigured = $this->paypalSettings !== null;
     }
+
 
     /**
      * Show the application paywith paypalpage.

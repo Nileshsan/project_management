@@ -39,11 +39,12 @@ class CoreDatabaseSeeder extends Seeder
     {
         $backupSetting = new DatabaseBackupSetting();
         $backupSetting->status = 'inactive';
-        $backupSetting->hour_of_day = '';
+        $backupSetting->hour_of_day = '01:00:00'; // Valid time format for PostgreSQL
         $backupSetting->backup_after_days = '0';
         $backupSetting->delete_backup_after_days = '0';
         $backupSetting->save();
     }
+
 
     private function fileStorageSetting()
     {
@@ -83,9 +84,18 @@ class CoreDatabaseSeeder extends Seeder
         $slack->save();
 
         $pusherSetting = new PusherSetting();
+        $pusherSetting->pusher_app_id = '';
+        $pusherSetting->pusher_app_key = '';
+        $pusherSetting->pusher_app_secret = '';
+        $pusherSetting->pusher_cluster = '';
+        $pusherSetting->pusher_status = 0;
+        $pusherSetting->force_tls = 1;
+        $pusherSetting->encrypted = 0;
+        $pusherSetting->status = 0; 
         $pusherSetting->save();
 
     }
+
 
     private function appreciationIcon()
     {

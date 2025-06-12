@@ -96,12 +96,19 @@ class CoreSuperAdminDatabaseSeeder extends Seeder
         $packages->annual_price = 0;
         $packages->monthly_price = 0;
         $packages->max_employees = 20;
+        $packages->max_storage_size = 1000;
+        $packages->storage_unit = 'mb';
+        $packages->is_private = false; // ✅ Add this line to satisfy the NOT NULL constraint
         $packages->default = 'yes';
         $packages->is_free = 1;
         $packages->sort = 1;
         $packages->module_in_package = $packageModules;
+        $packages->monthly_status = 1;
+        $packages->annual_status = 1;
         $packages->save();
     }
+
+
 
     private function packageSetting()
     {
@@ -123,22 +130,29 @@ class CoreSuperAdminDatabaseSeeder extends Seeder
 
         $packages = new Package();
         $packages->name = 'Trial';
-
-        if ($global) {
-            $packages->currency_id = $global->currency_id;
-        }
-
         $packages->description = 'Its a trial package';
         $packages->max_storage_size = 500;
+        $packages->storage_unit = 'mb';
         $packages->annual_price = 0;
         $packages->monthly_price = 0;
         $packages->max_employees = 20;
         $packages->stripe_annual_plan_id = 'trial_plan';
         $packages->stripe_monthly_plan_id = 'trial_plan';
         $packages->default = 'trial';
+        $packages->is_private = false;         // <-- Add this if 'is_private' is NOT NULL
+        $packages->sort = 1;                   // <-- Add this to avoid NULL sort
+        $packages->is_free = true;             // <-- Safe default for free trial
+        $packages->monthly_status = true;
+        $packages->annual_status = true;
         $packages->module_in_package = $packageModules;
+
+        if ($global) {
+            $packages->currency_id = $global->currency_id;
+        }
+
         $packages->save();
     }
+
 
     private function stripeSetting()
     {

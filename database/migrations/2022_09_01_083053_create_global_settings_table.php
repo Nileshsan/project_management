@@ -40,7 +40,7 @@ return new class extends Migration {
                 $table->enum('google_recaptcha_v3_status', ['active', 'deactive'])->default('deactive');
                 $table->string('google_recaptcha_v3_site_key')->nullable();
                 $table->string('google_recaptcha_v3_secret_key')->nullable();
-                $table->boolean('app_debug')->default(false);
+                $table->boolean('app_debug')->default(true);
                 $table->string('currency_converter_key')->nullable();
                 $table->string('currency_key_version')->default('free');
                 $table->string('moment_format')->default('DD-MM-YYYY');
@@ -143,7 +143,7 @@ return new class extends Migration {
             $globalSetting->google_recaptcha_v3_status = $company->google_recaptcha_v3_status ?? 'deactive';
             $globalSetting->google_recaptcha_v3_site_key = $company->google_recaptcha_v3_site_key;
             $globalSetting->google_recaptcha_v3_secret_key = $company->google_recaptcha_v3_secret_key;
-            $globalSetting->app_debug = $company->app_debug ?? false;
+            $globalSetting->app_debug = $company->app_debug ?? true;
             $globalSetting->currency_converter_key = $company->currency_converter_key ?? '';
             /** @phpstan-ignore-next-line */
             $globalSetting->currency_key_version = $company->currency_key_version ?? 'free';

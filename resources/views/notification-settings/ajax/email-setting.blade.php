@@ -6,7 +6,7 @@
             @if ($smtpSetting->mail_driver == 'smtp')
                 @if(!app()->environment(['codecanyon','demo']))
                     <x-alert type="danger" icon="info-circle">
-                        It seems you have changed the <code class="font-weight-bold">APP_ENV=codecanyon</code> to
+                        It seems you have changed the <code class="font-weight-bold">APP_ENV=local> to
                         something else in <code>.env</code> file.
                         Please do not change it, otherwise below SMTP details won't be taken from here.
                     </x-alert>

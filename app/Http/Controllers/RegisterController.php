@@ -203,7 +203,7 @@ class RegisterController extends Controller
         $globalSetting->google_recaptcha_status = 'deactive';
         $globalSetting->google_recaptcha_v2_status = 'deactive';
         $globalSetting->google_recaptcha_v3_status = 'deactive';
-        $globalSetting->app_debug = false;
+        $globalSetting->app_debug = true
 
         // WORKSUITESAAS
         $globalCurrency = GlobalCurrency::first();

@@ -57,6 +57,7 @@ use Stripe\PaymentIntent;
 use Stripe\PaymentIntent as StripePaymentIntent;
 use Stripe\Stripe;
 use Unicodeveloper\Paystack\Paystack;
+use App\Models\PaymentGatewayCredentials;
 
 class BillingController extends AccountBaseController
 {
@@ -65,13 +66,15 @@ class BillingController extends AccountBaseController
 
     public function __construct()
     {
-
         parent::__construct();
 
-        $this->paymentGatewatActive = false;
+        $this->paymentGatewayActive = false;
+
+        // Using the already imported model directly
         $this->stripeSettings = GlobalPaymentGatewayCredentials::first();
 
-        if (in_array('active', [
+        // Null-safe access
+        if ($this->stripeSettings && in_array('active', [
             $this->stripeSettings->paypal_status,
             $this->stripeSettings->stripe_status,
             $this->stripeSettings->razorpay_status,
@@ -80,19 +83,16 @@ class BillingController extends AccountBaseController
             $this->stripeSettings->payfast_status,
             $this->stripeSettings->authorize_status
         ])) {
-            $this->paymentGatewatActive = true;
+            $this->paymentGatewayActive = true;
         }
 
+        // Count active offline methods
+        $this->offlinePaymentGateways = OfflinePaymentMethod::withoutGlobalScope(CompanyScope::class)
+            ->where('status', 'yes')
+            ->whereNull('company_id')
+            ->count();
 
-        $this->offlinePaymentGateways = OfflinePaymentMethod::withoutGlobalScope(CompanyScope::class)->where('status', 'yes')->whereNull('company_id')->count();
-        $this->paymentActive = false;
-
-        if (!($this->paymentGatewatActive == false && $this->offlinePaymentGateways == 0)) {
-            $this->paymentActive = true;
-        }
-
-        // Moved to service provider
-        // $this->setStripConfigs();
+        $this->paymentActive = $this->paymentGatewayActive || $this->offlinePaymentGateways > 0;
 
         $this->pageTitle = 'superadmin.menu.billing';
 
@@ -104,6 +104,7 @@ class BillingController extends AccountBaseController
             return $next($request);
         });
     }
+
 
     public function index()
     {

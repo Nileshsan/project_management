@@ -1,5 +1,4 @@
 <?php
-<?php
 
 use App\Models\Company;
 use App\Models\LeadCustomForm;

@@ -6,7 +6,6 @@ use Closure;
 
 class DisableFrontend
 {
-
     /**
      * Handle an incoming request.
      *
@@ -14,15 +13,20 @@ class DisableFrontend
      * @param \Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next) 
     {
         $global = global_setting();
 
-        if ($global->frontend_disable && request()->route()->getName() != 'front.signup.index' && !request()->ajax()) {
+        $allowedRoutes = ['front.signup.index', 'front.home'];
+
+        if (
+            $global?->frontend_disable &&
+            !in_array(request()->route()->getName(), $allowedRoutes) &&
+            !request()->ajax()
+        ) {
             return redirect(route('login'));
         }
 
         return $next($request);
     }
-
 }

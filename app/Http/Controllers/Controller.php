@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\App;
 
 class Controller extends BaseController
 {
-
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests, AppBoot;
 
     /**
@@ -50,39 +49,37 @@ class Controller extends BaseController
 
     public function __construct()
     {
-
         $this->middleware(function ($request, $next) {
 
             $this->checkMigrateStatus();
 
-
-            // To keep the session we need to move it to middleware
             $this->gdpr = gdpr_setting();
             $this->global = global_setting();
-
-            // WORKSUITESAAS
             $this->company = companyOrGlobalSetting();
-
-
             $this->socialAuthSettings = social_auth_setting();
 
-            $this->companyName = company() ? $this->company->company_name : $this->global->global_app_name;
+            $this->companyName = company() && $this->company
+                ? $this->company->company_name
+                : ($this->global->global_app_name ?? config('app.name'));
 
-            $this->appName = company() ? $this->company->app_name : $this->global->global_app_name;
-            $this->locale = session('locale') ? session('locale') : (company() ? $this->company->locale : $this->global->locale);
+            $this->appName = company() && $this->company
+                ? ($this->company->app_name ?? $this->company->company_name)
+                : ($this->global->global_app_name ?? config('app.name'));
 
-            $this->taskBoardColumnLength = $this->company ? $this->company->taskboard_length : 10;
+            $this->locale = session('locale')
+                ?? ($this->company->locale ?? $this->global->locale ?? 'en');
+
+            $this->taskBoardColumnLength = $this->company->taskboard_length ?? 10;
 
             config(['app.name' => $this->companyName]);
             config(['app.url' => url('/')]);
 
             App::setLocale($this->locale);
             Carbon::setLocale($this->locale);
-
             setlocale(LC_TIME, $this->locale . '_' . mb_strtoupper($this->locale));
 
-            if (config('app.env') == 'codecanyon') {
-                config(['app.debug' => $this->global->app_debug]);
+            if (config('app.env') === 'codecanyon') {
+                config(['app.debug' => $this->global->app_debug ?? true]);
             }
 
             if (user()) {
@@ -102,7 +99,10 @@ class Controller extends BaseController
     {
         $html = view($view, $this->data)->render();
 
-        return Reply::dataOnly(['status' => 'success', 'html' => $html, 'title' => $this->pageTitle]);
+        return Reply::dataOnly([
+            'status' => 'success',
+            'html' => $html,
+            'title' => $this->pageTitle,
+        ]);
     }
-
 }
